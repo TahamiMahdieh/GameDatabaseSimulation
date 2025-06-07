@@ -66,6 +66,53 @@ public class DatabaseActions {
         return false;
     }
 
+
+    public String getUsernameByEmail(String email) throws SQLException {
+        String query = "SELECT username FROM player WHERE email = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("username");
+            } else {
+                throw new IllegalStateException("No user found with email: " + email);
+            }
+        }
+    }
+
+    public boolean getQuestionManagementAuthorityByEmail(String email){
+        String query = "SELECT question_management FROM player NATURAL JOIN abilities NATURAL JOIN authorities WHERE email = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean("question_management");
+            } else {
+                throw new IllegalStateException("No user found with email: " + email);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public boolean getUserBanAuthorityByEmail(String email){
+        String query = "SELECT users_ban FROM player NATURAL JOIN abilities NATURAL JOIN authorities WHERE email = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean("users_ban");
+            } else {
+                throw new IllegalStateException("No user found with email: " + email);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
     public boolean doesEmailExist (String email){
         String query = "SELECT COUNT(*) FROM player WHERE email = ?;";
         try {
@@ -99,5 +146,7 @@ public class DatabaseActions {
             }
         }
     }
+
+
 
 }

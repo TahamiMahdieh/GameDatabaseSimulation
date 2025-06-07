@@ -48,7 +48,7 @@ public class SignUpPage {
                 System.exit(3);
             }
             else {
-                System.out.println("Invalid input! Try to sign in again");
+                System.out.println("Invalid input! Try to sign up again");
                 this.showSignUpPage();
             }
         }
