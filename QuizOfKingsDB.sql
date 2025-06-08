@@ -17,7 +17,7 @@ CREATE TABLE Player (
     A_ID INT NOT NULL DEFAULT 1,
     Username VARCHAR(50) NOT NULL,
     Email VARCHAR(100) NOT NULL UNIQUE,
-    Password VARCHAR(255) NOT NULL,
+    Pass VARCHAR(255) NOT NULL,
     FOREIGN KEY (A_ID) REFERENCES Authorities(A_ID),
     Sign_In_Date DATE
 );
@@ -48,12 +48,12 @@ CREATE TABLE Question (
 CREATE TABLE Round (
 	R_ID INT AUTO_INCREMENT PRIMARY KEY,
     Round_Num INT NOT NULL,
-    Player1_Answer CHAR,
-    Player2_Answer CHAR,
+    P1_Answer CHAR,
+    P2_Answer CHAR,
     Start_Time TIMESTAMP NOT NULL,
     End_Time TIMESTAMP, -- this can be null. if it has been more than a day since the start of the round, the match gets expired.
-    CHECK (Player1_Answer IN ('A', 'B', 'C', 'D')), 
-    CHECK (Player2_Answer IN ('A', 'B', 'C', 'D')),
+    CHECK (P1_Answer IN ('A', 'B', 'C', 'D')), 
+    CHECK (P2_Answer IN ('A', 'B', 'C', 'D')),
     CHECK (Round_Num > 0 AND Round_Num < 7)
 );
 
@@ -61,13 +61,14 @@ CREATE TABLE Matches (
 	M_ID INT AUTO_INCREMENT PRIMARY KEY,
     P1_ID INT NOT NULL,
     P2_ID INT NOT NULL,
+    winner_ID INT DEFAULT NULL,
     Start_Time TIMESTAMP NOT NULL, 
     End_Time TIMESTAMP, 
-    Match_Status VARCHAR(10) NOT NULL,
-    CHECK (Match_Status IN ('Done', 'Active')),
+    Match_Active BOOLEAN NOT NULL DEFAULT TRUE,
     CHECK (P1_ID != P2_ID),
     FOREIGN KEY (P1_ID) REFERENCES player (P_ID),
-    FOREIGN KEY (P2_ID) REFERENCES player (P_ID)
+    FOREIGN KEY (P2_ID) REFERENCES player (P_ID),
+    FOREIGN KEY (winner_ID) REFERENCES player (P_ID)
 );
 
 
@@ -90,20 +91,13 @@ CREATE TABLE R_Q_M (
 );
 
 
-CREATE TABLE Winner (
-	P_ID INT,
-    M_ID INT PRIMARY KEY,
-    Win_Date TIMESTAMP,
-    FOREIGN KEY (M_ID) REFERENCES Matches (M_ID),
-	FOREIGN KEY (P_ID) REFERENCES Player (P_ID)
-);
-
 CREATE TABLE Statistics (
 	S_ID INT AUTO_INCREMENT PRIMARY KEY,
     P_ID INT UNIQUE NOT NULL, 
     Total_Matches_Count INT NOT NULL DEFAULT 0, 
     Won_Matches_Count INT NOT NULL DEFAULT 0, 
-	Average_Accuracy FLOAT NOT NULL DEFAULT 1, 
+	Average_Accuracy FLOAT NOT NULL DEFAULT 1,
+	XP INT NOT NULL DEFAULT 50,
     FOREIGN KEY (P_ID) REFERENCES Player (P_ID) ON DELETE CASCADE
 );
 
@@ -114,8 +108,8 @@ DELIMITER $$
 CREATE TRIGGER update_match_status BEFORE UPDATE ON Matches 
 FOR EACH ROW 
 BEGIN 
-    IF OLD.End_Time IS NULL AND NEW.End_Time IS NOT NULL THEN
-        SET NEW.Match_Status = 'Done';
+    IF NEW.End_Time IS NOT NULL THEN
+        SET NEW.Match_Active = false;
     END IF;
 END $$
 DELIMITER ; 
@@ -129,20 +123,71 @@ END $$
 DELIMITER ; 
 
 
--- --------------------------------------------------------------------
+DELIMITER $$
+CREATE FUNCTION get_player_username_by_id (id INT) 
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+    DECLARE username1 VARCHAR(50);
+    SELECT username INTO username1 FROM player WHERE p_id = id;
+    RETURN username1;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE FUNCTION get_player_id_by_email (email1 VARCHAR (100)) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE id INT;
+    SELECT p_id INTO id FROM player WHERE email = email1;
+    RETURN id;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE FUNCTION calculate_player_score_in_match (m_id1 INT, p_id1 INT) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE score INT DEFAULT 0;
+    DECLARE is_p1 BOOLEAN;
+
+    SELECT (p1_id = p_id1) INTO is_p1
+    FROM matches
+    WHERE m_id = m_id1;
+
+    IF is_p1 THEN
+        SELECT COUNT(*) INTO score
+        FROM matches NATURAL JOIN r_q_m NATURAL JOIN question
+        JOIN round USING (r_id)
+        WHERE m_id = m_id1 AND p1_answer = correct_option;
+    ELSE
+        SELECT COUNT(*) INTO score
+        FROM matches NATURAL JOIN r_q_m NATURAL JOIN question
+        JOIN round USING (r_id)
+        WHERE m_id = m_id1 AND p2_answer = correct_option;
+    END IF;
+
+    RETURN score;
+END$$
+DELIMITER ;
+-- ---------------------------------------------------------
 INSERT INTO category (Title) VALUES ('math'), ('sport'), ('history'), ('common knowledge'), ('cinema');
 -- ------------------------------------------------------------------
-INSERT INTO player (username, email, Password, sign_in_date) VALUES 
-('Mahdieh', 'mahdieh@gmail.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
-', '2025-11-02'),
-('Bahar', 'bahar@gmail.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
-', '2025-11-04'),
-('Ali', 'ali@gmail.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
-', '2025-11-05'),
-('HasanGholi', 'hasan@gmail.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
-', '2025-11-11'),
-('Reza', 'reza@gmail.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
-', '2025-10-18');
+INSERT INTO player (username, email, pass, sign_in_date) VALUES 
+('Mahdieh', 'mahdieh@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
+, '2025-11-02'),
+('Bahar', 'bahar@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
+, '2025-11-04'),
+('Ali', 'ali@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
+, '2025-11-05'),
+('HasanGholi', 'hasan@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
+, '2025-11-11'),
+('Reza', 'reza@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
+, '2025-10-18');
 -- --------------------------------------------------------------------
 INSERT INTO question (question_text, option_a, option_b, option_c, option_d, correct_option, Creator_ID, difficulty, approval_state) VALUES
 			('234 + 123 = ?', '567', '357', '412', '337', 'B', 1, 'Easy', true),
@@ -175,6 +220,16 @@ INSERT INTO qstion_ctgry (Q_ID, C_ID) VALUES
             (13, 5), (14, 5), (15, 5), (16, 5),
             (17, 4), (18, 3), (19, 2), (20, 1),
             (21, 2), (22, 3);
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'B', 'B', '2025-06-08 14:30:45', '2025-06-08 14:35:45'),
+            (2, 'B', 'D', '2025-06-09 14:30:45', '2025-06-08 14:35:45'),
+            (3, 'A', 'C', '2025-06-10 14:30:45', '2025-06-08 14:35:45');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(1, 2, 2, '2025-06-08 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-06-08 14:35:45' WHERE m_id = 1;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(1, 1, 1), (2, 2, 1), (3, 3, 1);
 -- ------------------------------------------------------------------
 UPDATE player SET A_ID = 4 WHERE P_ID = 1;
 UPDATE player SET A_ID = 3 WHERE P_ID = 2;

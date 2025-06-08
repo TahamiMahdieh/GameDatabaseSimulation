@@ -1,3 +1,4 @@
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
@@ -10,11 +11,82 @@ public class DatabaseActions {
         this.connection = DatabaseConnection.getConnection();
     }
 
+    public boolean startNewGame (int category, String email) {
+        return false;
+    }
+
+    public String seeStatistics(String email) {
+        String query = "SELECT Total_Matches_Count, Won_Matches_Count, Average_Accuracy, XP FROM statistics NATURAL JOIN player WHERE Email = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                StringBuilder result = new StringBuilder();
+
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = metaData.getColumnName(i);
+                    String value = resultSet.getString(i);
+                    result.append(columnName).append(": ").append(value);
+                    if (i < columnCount) {
+                        result.append(", ");
+                    }
+                }
+
+                return result.toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String seeFinishedMatches(String email) {
+        String query =
+                "SELECT " +
+                        "  get_player_username_by_id(matches.p1_id) AS player1, " +
+                        "  get_player_username_by_id(matches.p2_id) AS player2, " +
+                        "  get_player_username_by_id(matches.winner_id) AS winner, " +
+                        "  calculate_player_score_in_match(matches.m_id, player.p_id) AS score " +
+                        "FROM matches JOIN player ON (matches.p1_id = player.p_id OR matches.p2_id = player.p_id) " +
+                        "WHERE matches.Match_Active = false AND player.email = ?;";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                StringBuilder result = new StringBuilder();
+
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = metaData.getColumnName(i);
+                    String value = resultSet.getString(i);
+                    result.append(columnName).append(": ").append(value);
+                    if (i < columnCount) {
+                        result.append(", ");
+                    }
+                }
+
+                return result.toString();
+            }
+            else {
+                return "You haven't finished a match yet";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean signIn (String email, String password){
-        String query = "SELECT COUNT(*) FROM player WHERE Email = ? AND Password = ?";
+        String query = "SELECT COUNT(*) FROM player WHERE Email = ? AND Pass = ?";
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
+            byte[] hashedBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
             //converting bytes to hex
             StringBuilder sb = new StringBuilder();
@@ -40,7 +112,7 @@ public class DatabaseActions {
     }
 
     public boolean signUp (String username, String password, String email){
-        String query = "INSERT INTO player (Username, Email, Password, Sign_In_Date) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO player (Username, Email, Pass, Sign_In_Date) VALUES (?, ?, ?, ?)";
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = md.digest(password.getBytes());
@@ -66,7 +138,6 @@ public class DatabaseActions {
         return false;
     }
 
-
     public String getUsernameByEmail(String email) throws SQLException {
         String query = "SELECT username FROM player WHERE email = ?;";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -81,7 +152,7 @@ public class DatabaseActions {
     }
 
     public boolean getQuestionManagementAuthorityByEmail(String email){
-        String query = "SELECT question_management FROM player NATURAL JOIN abilities NATURAL JOIN authorities WHERE email = ?;";
+        String query = "SELECT question_management FROM player NATURAL JOIN authorities WHERE email = ?;";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
@@ -97,7 +168,7 @@ public class DatabaseActions {
     }
 
     public boolean getUserBanAuthorityByEmail(String email){
-        String query = "SELECT users_ban FROM player NATURAL JOIN abilities NATURAL JOIN authorities WHERE email = ?;";
+        String query = "SELECT users_ban FROM player NATURAL JOIN authorities WHERE email = ?;";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
@@ -111,7 +182,6 @@ public class DatabaseActions {
         }
 
     }
-
 
     public boolean doesEmailExist (String email){
         String query = "SELECT COUNT(*) FROM player WHERE email = ?;";

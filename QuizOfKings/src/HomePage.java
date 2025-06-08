@@ -24,7 +24,7 @@ public class HomePage {
             System.out.println("1. Start a new match");
             System.out.println("2. Continue active matches");
             System.out.println("3. Player statics");
-            System.out.println("4. Player Matches");
+            System.out.println("4. Player finished matches");
             System.out.println("5. Global ranking");
             System.out.println("6. Create new question");
             System.out.println("7. Main menu");
@@ -56,16 +56,46 @@ public class HomePage {
 
             }
             else if (option == 1){
-
+                StartNewMatch newMatch = new StartNewMatch(email, da);
+                newMatch.startMatch();
             }
             else if (option == 2){
-
+                ActiveGame activeGame =new ActiveGame(email, da);
+                activeGame.seeActiveGames();
             }
             else if (option == 3){
-
+                System.out.println(da.seeStatistics(email));
+                System.out.println("1. Home");
+                System.out.println("2. Exit");
+                int option1 = s.nextInt();
+                if (option1 == 1) {
+                    this.showHomePage();
+                }
+                else if (option1 == 2) {
+                    System.out.println("Good bye!");
+                    System.exit(7);
+                }
+                else {
+                    System.out.println("Invalid input. Back to home");
+                    this.showHomePage();
+                }
             }
             else if (option == 4){
-
+                System.out.println(da.seeFinishedMatches(email));
+                System.out.println("1. Home");
+                System.out.println("2. Exit");
+                int option1 = s.nextInt();
+                if (option1 == 1) {
+                    this.showHomePage();
+                }
+                else if (option1 == 2) {
+                    System.out.println("Good bye!");
+                    System.exit(7);
+                }
+                else {
+                    System.out.println("Invalid input. Back to home");
+                    this.showHomePage();
+                }
             }
             else if (option == 5){
 
