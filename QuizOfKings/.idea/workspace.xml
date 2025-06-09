@@ -5,10 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70f85929-ab22-494e-b5b0-43c18d7352b6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/NewQuestionPage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/RankingPage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DatabaseActions.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DatabaseActions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ActiveGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ActiveGame.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DatabaseActions.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DatabaseAction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/HomePage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/HomePage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MainMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainMenu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SignInPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SignInPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SignUpPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SignUpPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/StartNewMatch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/StartNewMatch.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../QuizOfKingsDB.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../QuizOfKingsDB.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot 2025-06-07 012212.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +93,9 @@
       <workItem from="1749318057833" duration="3676000" />
       <workItem from="1749369540878" duration="2358000" />
       <workItem from="1749395720570" duration="4057000" />
-      <workItem from="1749454681132" duration="4280000" />
+      <workItem from="1749454681132" duration="4648000" />
+      <workItem from="1749480599497" duration="5002000" />
+      <workItem from="1749488052323" duration="4696000" />
     </task>
     <servers />
   </component>

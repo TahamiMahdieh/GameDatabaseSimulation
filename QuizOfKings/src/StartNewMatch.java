@@ -2,9 +2,9 @@ import java.util.Scanner;
 
 public class StartNewMatch {
     private String email;
-    private DatabaseActions da;
+    private DatabaseAction da;
 
-    public StartNewMatch(String email, DatabaseActions da) {
+    public StartNewMatch(String email, DatabaseAction da) {
         this.email = email;
         this.da = da;
     }
@@ -35,10 +35,10 @@ public class StartNewMatch {
     public void setEmail(String email) {
         this.email = email;
     }
-    public DatabaseActions getDa() {
+    public DatabaseAction getDa() {
         return da;
     }
-    public void setDa(DatabaseActions da) {
+    public void setDa(DatabaseAction da) {
         this.da = da;
     }
 }

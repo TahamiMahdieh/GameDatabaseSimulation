@@ -1,12 +1,10 @@
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SignInPage {
-    private final DatabaseActions da;
+    private final DatabaseAction da;
     private final Scanner s = new Scanner(System.in);
 
-    public SignInPage(DatabaseActions da) {
+    public SignInPage(DatabaseAction da) {
         this.da = da;
     }
 

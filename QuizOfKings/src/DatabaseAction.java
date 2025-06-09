@@ -4,14 +4,38 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.LocalDateTime;
 
-public class DatabaseActions {
+public class DatabaseAction {
     private final Connection connection;
 
-    public DatabaseActions() {
+    public DatabaseAction() {
         this.connection = DatabaseConnection.getConnection();
     }
 
     public boolean startNewGame (int category, String email) {
+        return false;
+    }
+
+    public boolean insertNewQuestion (int category, String Question_Text, String option_A, String option_B, String option_C, String option_D, char correct_option, String email, int difficulty) {
+        String query = "INSERT INTO question (C_ID, Question_Text, option_A, option_B, option_C, option_d, correct_option, creator_id, difficulty)" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, get_player_id_by_email(?),?)";
+        try {
+            String difficultyString;
+            switch (difficulty) {
+                case 1 :
+                    difficultyString = "Easy";
+                    break;
+                case 2 :
+                    difficultyString = "Medium";
+                    break;
+                default:
+                    difficultyString = "Hard";
+            }
+            insertAndGetId(connection, query, category, Question_Text, option_A, option_B, option_C, option_D, String.valueOf(correct_option), email, difficultyString);
+            return true;
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
         return false;
     }
 
@@ -89,7 +113,6 @@ public class DatabaseActions {
         }
     }
 
-
     public boolean signIn (String email, String password){
         String query = "SELECT COUNT(*) FROM player WHERE Email = ? AND Pass = ?";
         try {
@@ -159,61 +182,6 @@ public class DatabaseActions {
         }
     }
 
-    public void updatePlayerXP(String email) {
-        String query = "UPDATE statistics SET xp = calculate_player_xp(p_id) WHERE p_id = get_player_id_by_email(?);";
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-
-            stmt.setString(1, email);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updatePlayerWonMatchesCount(String email) {
-        String query = "UPDATE statistics SET Won_Matches_Count = calculate_won_matches_count(p_id) WHERE p_id = get_player_id_by_email(?);";
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-
-            stmt.setString(1, email);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updatePlayerTotalMatchesCount(String email) {
-        String query = "UPDATE statistics SET Total_Matches_Count = calculate_total_matches_count(p_id) WHERE p_id = get_player_id_by_email(?);";
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-
-            stmt.setString(1, email);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updatePlayerAccuracy(String email) {
-        String query = "UPDATE statistics SET Accuracy = " +
-                       "CASE " +
-                       " WHEN total_matches_count != 0 THEN CAST(won_matches_count AS FLOAT) / total_matches_count" +
-                       " ELSE 1.0 END" +
-                       " WHERE p_id = get_player_id_by_email(?);";
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-
-            stmt.setString(1, email);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     public boolean getQuestionManagementAuthorityByEmail(String email){
         String query = "SELECT question_management FROM player NATURAL JOIN authorities WHERE email = ?;";
@@ -229,6 +197,26 @@ public class DatabaseActions {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public void printTopPlayers(String title, String query) {
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            System.out.println("\nTop Players - " + title );
+            System.out.printf("%-4s | %-15s | %-5s%n", "Rank", "Player ", "Wins");
+            System.out.println("------------------------------------------");
+
+            int rank = 1;
+            while (rs.next()) {
+                String player = rs.getString("username");
+                int winCount = rs.getInt("win_count");
+                System.out.printf("%-4d | %-15s | %-5d%n", rank++, player, winCount);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean getUserBanAuthorityByEmail(String email){

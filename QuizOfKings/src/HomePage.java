@@ -2,10 +2,10 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class HomePage {
-    private DatabaseActions da;
+    private DatabaseAction da;
     private String email;
 
-    public HomePage(DatabaseActions da, String email) {
+    public HomePage(DatabaseAction da, String email) {
         this.da = da;
         this.email = email;
     }
@@ -23,12 +23,12 @@ public class HomePage {
             System.out.println("Welcome " + username);
             System.out.println("1. Start a new match");
             System.out.println("2. Continue active matches");
-            System.out.println("3. Player statics");
-            System.out.println("4. Player finished matches");
+            System.out.println("3. Player statics"); // done
+            System.out.println("4. Player finished matches"); // done
             System.out.println("5. Global ranking");
-            System.out.println("6. Create new question");
-            System.out.println("7. Main menu");
-            System.out.println("8. Exit");
+            System.out.println("6. Create new question"); // done
+            System.out.println("7. Main menu");  //done
+            System.out.println("8. Exit");  // done
             int i = 9; // just in case that the number of options will not miss number 9
             if (userBanAuthority) {
                 System.out.println(i + ". Banning users");
@@ -64,10 +64,6 @@ public class HomePage {
                 activeGame.seeActiveGames();
             }
             else if (option == 3){
-                da.updatePlayerWonMatchesCount(email);
-                da.updatePlayerTotalMatchesCount(email);
-                da.updatePlayerAccuracy(email);
-                da.updatePlayerXP(email);
                 System.out.println(da.seeStatistics(email));
                 System.out.println("1. Home");
                 System.out.println("2. Exit");
@@ -102,10 +98,12 @@ public class HomePage {
                 }
             }
             else if (option == 5){
-
+                RankingPage rankingPage = new RankingPage(da);
+                rankingPage.showRankingPage();
             }
             else if (option == 6){
-
+                NewQuestionPage newQuestionPage = new NewQuestionPage(email, da);
+                newQuestionPage.showNewQuestionPage();
             }
             else {
                 System.out.println("Invalid input! please try again.");

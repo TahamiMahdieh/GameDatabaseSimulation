@@ -1,7 +1,7 @@
 
 public class Main {
     public static void main(String[] args) {
-        DatabaseActions da = new DatabaseActions();
+        DatabaseAction da = new DatabaseAction();
         MainMenu mm = new MainMenu(da);
         mm.showMainMenu();
     }

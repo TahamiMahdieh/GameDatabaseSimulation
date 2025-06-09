@@ -1,10 +1,10 @@
 import java.util.Scanner;
 
 public class MainMenu {
-    private final DatabaseActions da;
+    private final DatabaseAction da;
     private final Scanner s = new Scanner(System.in);
 
-    public MainMenu(DatabaseActions da) {
+    public MainMenu(DatabaseAction da) {
         this.da = da;
     }
 

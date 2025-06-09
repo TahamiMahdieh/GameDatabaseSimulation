@@ -3,10 +3,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SignUpPage {
-    private DatabaseActions da = new DatabaseActions();
+    private DatabaseAction da = new DatabaseAction();
     private Scanner s = new Scanner(System.in);
 
-    public SignUpPage(DatabaseActions da) {
+    public SignUpPage(DatabaseAction da) {
         this.da = da;
     }
 

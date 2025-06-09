@@ -1,8 +1,8 @@
 public class ActiveGame {
     private String email;
-    private DatabaseActions da;
+    private DatabaseAction da;
 
-    public ActiveGame(String email, DatabaseActions da) {
+    public ActiveGame(String email, DatabaseAction da) {
         this.email = email;
         this.da = da;
     }
@@ -21,10 +21,10 @@ public class ActiveGame {
     public void setEmail(String email) {
         this.email = email;
     }
-    public DatabaseActions getDa() {
+    public DatabaseAction getDa() {
         return da;
     }
-    public void setDa(DatabaseActions da) {
+    public void setDa(DatabaseAction da) {
         this.da = da;
     }
 }
