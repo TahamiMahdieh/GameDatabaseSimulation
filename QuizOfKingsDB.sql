@@ -96,7 +96,7 @@ CREATE TABLE Statistics (
     P_ID INT UNIQUE NOT NULL, 
     Total_Matches_Count INT NOT NULL DEFAULT 0, 
     Won_Matches_Count INT NOT NULL DEFAULT 0, 
-	Average_Accuracy FLOAT NOT NULL DEFAULT 1,
+	Accuracy FLOAT NOT NULL DEFAULT 1,
 	XP INT NOT NULL DEFAULT 50,
     FOREIGN KEY (P_ID) REFERENCES Player (P_ID) ON DELETE CASCADE
 );
@@ -191,6 +191,27 @@ END$$
 DELIMITER ;
 
 
+DELIMITER $$
+CREATE FUNCTION calculate_won_matches_count (id1 INT) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE won_count INT;
+    SELECT COUNT(*) FROM matches WHERE winner_id = id1 INTO won_count;
+    RETURN won_count;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE FUNCTION calculate_total_matches_count (id1 INT) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE total_count INT;
+    SELECT COUNT(*) FROM matches WHERE (p1_id = id1 OR p2_id = id1) AND winner_id IS NOT NULL INTO total_count;
+    RETURN total_count;
+END$$
+DELIMITER ;
 -- ---------------------------------------------------------
 INSERT INTO category (Title) VALUES ('math'), ('sport'), ('history'), ('common knowledge'), ('cinema');
 -- ------------------------------------------------------------------

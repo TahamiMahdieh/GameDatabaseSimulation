@@ -64,6 +64,9 @@ public class HomePage {
                 activeGame.seeActiveGames();
             }
             else if (option == 3){
+                da.updatePlayerWonMatchesCount(email);
+                da.updatePlayerTotalMatchesCount(email);
+                da.updatePlayerAccuracy(email);
                 da.updatePlayerXP(email);
                 System.out.println(da.seeStatistics(email));
                 System.out.println("1. Home");

@@ -16,7 +16,7 @@ public class DatabaseActions {
     }
 
     public String seeStatistics(String email) {
-        String query = "SELECT Total_Matches_Count, Won_Matches_Count, Average_Accuracy, XP FROM statistics NATURAL JOIN player WHERE Email = ?";
+        String query = "SELECT Total_Matches_Count, Won_Matches_Count, Accuracy, XP FROM statistics NATURAL JOIN player WHERE Email = ?";
         try {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
@@ -172,8 +172,48 @@ public class DatabaseActions {
         }
     }
 
+    public void updatePlayerWonMatchesCount(String email) {
+        String query = "UPDATE statistics SET Won_Matches_Count = calculate_won_matches_count(p_id) WHERE p_id = get_player_id_by_email(?);";
 
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
 
+            stmt.setString(1, email);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updatePlayerTotalMatchesCount(String email) {
+        String query = "UPDATE statistics SET Total_Matches_Count = calculate_total_matches_count(p_id) WHERE p_id = get_player_id_by_email(?);";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, email);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updatePlayerAccuracy(String email) {
+        String query = "UPDATE statistics SET Accuracy = " +
+                       "CASE " +
+                       " WHEN total_matches_count != 0 THEN CAST(won_matches_count AS FLOAT) / total_matches_count" +
+                       " ELSE 1.0 END" +
+                       " WHERE p_id = get_player_id_by_email(?);";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, email);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public boolean getQuestionManagementAuthorityByEmail(String email){
         String query = "SELECT question_management FROM player NATURAL JOIN authorities WHERE email = ?;";
