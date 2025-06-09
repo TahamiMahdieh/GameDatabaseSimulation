@@ -64,6 +64,7 @@ public class HomePage {
                 activeGame.seeActiveGames();
             }
             else if (option == 3){
+                da.updatePlayerXP(email);
                 System.out.println(da.seeStatistics(email));
                 System.out.println("1. Home");
                 System.out.println("2. Exit");

@@ -49,7 +49,7 @@ public class DatabaseActions {
                         "  get_player_username_by_id(matches.p1_id) AS player1, " +
                         "  get_player_username_by_id(matches.p2_id) AS player2, " +
                         "  get_player_username_by_id(matches.winner_id) AS winner, " +
-                        "  calculate_player_score_in_match(matches.m_id, player.p_id) AS score " +
+                        "  calculate_player_score_in_match(matches.m_id, player.p_id) AS your_score " +
                         "FROM matches JOIN player ON (matches.p1_id = player.p_id OR matches.p2_id = player.p_id) " +
                         "WHERE matches.Match_Active = false AND player.email = ?;";
 
@@ -57,30 +57,38 @@ public class DatabaseActions {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                ResultSetMetaData metaData = resultSet.getMetaData();
-                int columnCount = metaData.getColumnCount();
-                StringBuilder result = new StringBuilder();
 
-                for (int i = 1; i <= columnCount; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    String value = resultSet.getString(i);
-                    result.append(columnName).append(": ").append(value);
-                    if (i < columnCount) {
-                        result.append(", ");
-                    }
-                }
+            StringBuilder result = new StringBuilder();
 
-                return result.toString();
+            // هدر جدول
+            String header = String.format("%-15s %-15s %-15s %-10s", "Player1", "Player2", "Winner", "Your score");
+            result.append(header).append("\n");
+            result.append("-------------------------------------------------------------\n");
+
+            boolean hasResults = false;
+
+            while (resultSet.next()) {
+                hasResults = true;
+                String player1 = resultSet.getString("player1");
+                String player2 = resultSet.getString("player2");
+                String winner = resultSet.getString("winner");
+                String score = resultSet.getString("your_score");
+
+                String row = String.format("%-15s %-15s %-15s %-10s", player1, player2, winner, score);
+                result.append(row).append("\n");
             }
-            else {
+
+            if (hasResults) {
+                return result.toString();
+            } else {
                 return "You haven't finished a match yet";
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return "An error occurred while fetching finished matches.";
         }
-        return null;
     }
+
 
     public boolean signIn (String email, String password){
         String query = "SELECT COUNT(*) FROM player WHERE Email = ? AND Pass = ?";
@@ -150,6 +158,22 @@ public class DatabaseActions {
             }
         }
     }
+
+    public void updatePlayerXP(String email) {
+        String query = "UPDATE statistics SET xp = calculate_player_xp(p_id) WHERE p_id = get_player_id_by_email(?);";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, email);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     public boolean getQuestionManagementAuthorityByEmail(String email){
         String query = "SELECT question_management FROM player NATURAL JOIN authorities WHERE email = ?;";

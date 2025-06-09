@@ -174,20 +174,32 @@ BEGIN
     RETURN score;
 END$$
 DELIMITER ;
+
+
+
+DELIMITER $$
+CREATE FUNCTION calculate_player_xp (id1 INT) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE xp INT;
+    SELECT (SELECT COUNT(*) FROM matches WHERE winner_id = id1 ) * 10 + 
+		   (SELECT COUNT(*) FROM matches
+			WHERE (p1_id = id1 OR p2_id = id1) AND winner_id IS NOT NULL AND winner_id != id1 ) * 5 + 50 INTO xp;
+    RETURN xp;
+END$$
+DELIMITER ;
+
+
 -- ---------------------------------------------------------
 INSERT INTO category (Title) VALUES ('math'), ('sport'), ('history'), ('common knowledge'), ('cinema');
 -- ------------------------------------------------------------------
 INSERT INTO player (username, email, pass, sign_in_date) VALUES 
-('Mahdieh', 'mahdieh@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
-, '2025-11-02'),
-('Bahar', 'bahar@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
-, '2025-11-04'),
-('Ali', 'ali@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
-, '2025-11-05'),
-('HasanGholi', 'hasan@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
-, '2025-11-11'),
-('Reza', 'reza@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb'
-, '2025-10-18');
+('Mahdieh', 'mahdieh@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-02'),
+('Bahar', 'bahar@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-04'),
+('Ali', 'ali@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-05'),
+('HasanGholi', 'hasan@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-11'),
+('Reza', 'reza@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-10-18');
 -- --------------------------------------------------------------------
 INSERT INTO question (question_text, option_a, option_b, option_c, option_d, correct_option, Creator_ID, difficulty, approval_state) VALUES
 			('234 + 123 = ?', '567', '357', '412', '337', 'B', 1, 'Easy', true),
@@ -230,6 +242,16 @@ INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
 UPDATE matches SET end_time = '2025-06-08 14:35:45' WHERE m_id = 1;
 INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
 			(1, 1, 1), (2, 2, 1), (3, 3, 1);
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'B', 'A', '2026-06-08 14:30:45', '2026-06-08 14:35:45'),
+            (2, 'A', 'D', '2026-06-09 14:30:45', '2026-06-08 14:35:45'),
+            (3, 'C', 'A', '2026-06-10 14:30:45', '2026-06-08 14:35:45');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(2, 1, 2, '2026-06-08 14:30:45', NULL);
+UPDATE matches SET end_time = '2026-06-08 14:35:45' WHERE m_id = 2;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(4, 4, 2), (5, 5, 2), (6, 6, 2);
 -- ------------------------------------------------------------------
 UPDATE player SET A_ID = 4 WHERE P_ID = 1;
 UPDATE player SET A_ID = 3 WHERE P_ID = 2;
@@ -237,6 +259,10 @@ UPDATE player SET A_ID = 2 WHERE P_ID = 3;
 -- ------------------------------------------------------------------
 CREATE INDEX email_index ON Player(email);
 CREATE INDEX id_index ON Question(Q_ID);
+
+
+
+
 
 
 
