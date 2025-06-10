@@ -250,11 +250,18 @@ DELIMITER ;
 INSERT INTO category (Title) VALUES ('math'), ('sport'), ('history'), ('common knowledge'), ('cinema');
 -- ------------------------------------------------------------------
 INSERT INTO player (username, email, pass, sign_in_date) VALUES 
-('Mahdieh', 'mahdieh@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-02'),
-('Bahar', 'bahar@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-04'),
-('Ali', 'ali@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-05'),
-('HasanGholi', 'hasan@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-11-11'),
-('Reza', 'reza@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-10-18');
+('Mahdieh', 'mahdieh@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2024-11-02'),
+('Bahar', 'bahar@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2024-11-04'),
+('Ali', 'ali@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2024-11-05'),
+('HasanGholi', 'hasan@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-01-11'),
+('Zahra', 'zahra@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-11'),
+('Asqar', 'asqar@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
+('Maryam', 'maryam@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
+('Javad', 'javad@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
+('Hosein', 'hosein@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
+('Goli', 'goli@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
+('Mina', 'mina@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
+('Reza', 'reza@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2023-10-18');
 -- --------------------------------------------------------------------
 INSERT INTO question (C_ID, question_text, option_a, option_b, option_c, option_d, correct_option, Creator_ID, difficulty, approval_state) VALUES
 			(1, '234 + 123 = ?', '567', '357', '412', '337', 'B', 1, 'Easy', true),
@@ -278,8 +285,11 @@ INSERT INTO question (C_ID, question_text, option_a, option_b, option_c, option_
             (2, 'اولین زن برنده مدال المپیک؟', 'شارلوت کوپر', 'باربارا اسکات', 'کیمیا علیزاده', 'ناهید کیانی', 'A', 3, 'Hard', true),
             (1, '2012 - 234 + 12345 * 12', '149917', '149918', '146918', '200008', 'B', 4, 'Hard', true),
             (2, 'کدام یک جزو ورزش های رزمی است؟', 'سپک تاکرا', 'کنگ فو', 'بسکتبال', 'والیبال', 'B', 5, 'Easy', true),
-            (3, 'کدام یک از شاهان هخامنشی نیست؟', 'کمبوجیه', 'اردشیر دوم', 'ارشک', 'طهماسب یکم', 'D', 1, 'Hard', true);
-                      
+            (3, 'کدام یک از شاهان هخامنشی نیست؟', 'کمبوجیه', 'اردشیر دوم', 'ارشک', 'طهماسب یکم', 'D', 1, 'Hard', true),
+            (1, 'نخستین زن برنده مدال فیلدز در ریاضیات؟', 'مارینا ویازوفسکا', 'مریم میرزاخانی', 'جون هو', 'عاطفه مقدسی', 'B', 2, 'Easy', true),
+            (4, 'شهر معروف به نصف جهان؟', 'بندرعباس', 'شیراز', 'تبریز', 'اصفهان', 'D', 3, 'Easy', true),
+            (5, 'فیلمنامه کدام فیلم بر اساس واقعیت نوشته شده است؟', 'ارقام پنهان', 'بچه های آسمان', 'راندده', 'پس از نیمه شب', 'A', 3, 'Hard', true);
+-- -----------------------------------------------------------------------------------------------------------------                      
 INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
 			(1, 'B', 'B', '2025-06-05 14:30:45', '2025-06-05 15:35:45'),
             (2, 'B', 'D', '2025-06-06 14:30:45', '2025-06-06 15:35:45'),
@@ -295,15 +305,145 @@ INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES
             (2, 'A', 'D', '2024-06-09 14:30:45', '2024-06-08 14:35:45'),
             (3, 'C', 'A', '2024-06-10 14:30:45', '2024-06-08 14:35:45');
 INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
-			(2, 1, 2, '2024-06-08 14:30:45', NULL);
+			(8, 7, 8, '2024-06-08 14:30:45', NULL);
 UPDATE matches SET end_time = '2024-06-08 14:35:45' WHERE m_id = 2;
 INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
 			(4, 4, 2), (5, 5, 2), (6, 6, 2);
--- ------------------------------------------------------------------
+            
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'D', 'A', '2025-05-29 14:30:45', '2025-05-29 14:35:45'),
+            (2, 'A', 'D', '2025-05-29 15:30:45', '2025-06-29 15:50:45'),
+            (3, 'C', 'A', '2025-05-29 16:30:45', '2025-06-29 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(1, 6, 1, '2025-05-29 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-06-29 17:30:12' WHERE m_id = 3;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(7, 7, 3), (8, 8, 3), (9, 9, 3);
+            
+
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'D', 'A', '2025-05-29 14:30:45', '2025-05-29 14:35:45'),
+            (2, 'A', 'B', '2025-05-29 15:30:45', '2025-06-29 15:50:45'),
+            (3, 'A', 'A', '2025-05-29 16:30:45', '2025-06-29 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(5, 8, 5, '2025-05-29 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-06-29 17:30:12' WHERE m_id = 4;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(7, 10, 4), (8, 11, 4), (9, 12, 4);
+
+
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'C', 'C', '2025-03-29 14:30:45', '2025-03-29 14:35:45'),
+            (2, 'B', 'D', '2025-03-29 15:30:45', '2025-03-29 15:50:45'),
+            (3, 'C', 'A', '2025-03-29 16:30:45', '2025-03-29 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(4, 5, 4, '2025-03-29 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-03-29 17:30:12' WHERE m_id = 5;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(10, 13, 5), (11, 14, 5), (12, 15, 5);
+            
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'C', 'C', '2025-03-29 14:30:45', '2025-03-29 14:35:45'),
+            (2, 'B', 'D', '2025-03-29 15:30:45', '2025-03-29 15:50:45'),
+            (3, 'C', 'A', '2025-03-29 16:30:45', '2025-03-29 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(9, 11, 9, '2025-03-29 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-03-29 17:30:12' WHERE m_id = 6;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(10, 16, 6), (11, 17, 6), (12, 18, 6);
+            
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'C', 'C', '2025-04-19 14:30:45', '2025-04-19 14:35:45'),
+            (2, 'A', 'D', '2025-04-19 15:30:45', '2025-04-19 15:50:45'),
+            (3, 'C', 'A', '2025-04-19 16:30:45', '2025-04-20 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(11, 7, 11, '2025-04-19 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-04-20 17:30:12' WHERE m_id = 7;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(10, 19, 7), (11, 20, 7), (12, 21, 7);
+            
+
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'C', 'B', '2023-03-29 14:30:45', '2023-03-29 14:35:45'),
+            (2, 'A', 'D', '2023-03-29 15:30:45', '2023-03-29 15:50:45'),
+            (3, 'B', 'A', '2023-03-29 16:30:45', '2023-03-29 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(3, 5, 3, '2023-03-29 14:30:45', NULL);
+UPDATE matches SET end_time = '2023-03-29 17:30:12' WHERE m_id = 8;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(13, 22, 8), (14, 23, 8), (15, 24, 8);
+            
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'A', 'C', '2025-05-09 10:30:45', '2025-05-09 14:35:45'),
+            (2, 'D', 'D', '2025-05-09 15:30:45', '2025-05-09 15:50:45'),
+            (3, 'C', 'A', '2025-05-09 16:30:45', '2025-05-09 18:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(7, 2, 7, '2025-05-09 10:30:45', NULL);
+UPDATE matches SET end_time = '2025-05-09 18:30:12' WHERE m_id = 9;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(1, 25, 9), (2, 26, 9), (3, 27, 9);
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'C', 'C', '2025-01-11 07:30:45', '2025-01-11 14:35:45'),
+            (2, 'B', 'D', '2025-01-11 15:30:45', '2025-01-11 15:50:45'),
+            (3, 'C', 'A', '2025-01-11 16:30:45', '2025-01-11 20:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(10, 9, 10, '2025-01-11 07:30:45', NULL);
+UPDATE matches SET end_time = '2025-01-11 20:30:12' WHERE m_id = 10;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(1, 28, 10), (2, 29, 10), (3, 30, 10);
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'C', 'C', '2021-03-29 14:30:45', '2021-03-29 14:35:45'),
+            (2, 'B', 'A', '2021-03-29 15:30:45', '2021-03-29 15:50:45'),
+            (3, 'C', 'A', '2021-03-29 16:30:45', '2021-03-29 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(4, 12, 12, '2021-03-29 14:30:45', NULL);
+UPDATE matches SET end_time = '2021-03-29 17:30:12' WHERE m_id = 11;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(4, 31, 11), (5, 32, 11), (6, 33, 11);
+            
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'C', 'C', '2025-06-28 14:30:45', '2025-06-28 14:35:45'),
+            (2, 'B', 'A', '2025-06-28 15:30:45', '2025-06-28 15:50:45'),
+            (3, 'C', 'D', '2025-06-28 16:30:45', '2025-06-28 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(1, 12, 12, '2025-06-28 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-06-28 17:30:12' WHERE m_id = 12;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(4, 34, 12), (5, 35, 12), (6, 36, 12);
+            
+            
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'A', 'C', '2025-06-27 14:30:45', '2025-06-27 14:35:45'),
+            (2, 'B', 'A', '2025-06-27 15:30:45', '2025-06-27 15:50:45'),
+            (3, 'C', 'A', '2025-06-27 16:30:45', '2025-06-27 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(4, 1, 1, '2025-06-28 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-06-28 17:30:12' WHERE m_id = 13;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(4, 37, 13), (5, 38, 13), (6, 39, 13);
+            
+
+INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
+			(1, 'B', 'C', '2025-06-27 14:30:45', '2025-06-27 14:35:45'),
+            (2, 'B', 'A', '2025-06-27 15:30:45', '2025-06-27 15:50:45'),
+            (3, 'C', 'A', '2025-06-27 16:30:45', '2025-06-27 17:30:12');
+INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
+			(1, 8, 1, '2025-06-27 14:30:45', NULL);
+UPDATE matches SET end_time = '2025-06-27 17:30:12' WHERE m_id = 14;
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
+			(20, 40, 14), (23, 41, 14), (1, 42, 14);
+-- ------------------------------------------------------------------------------------------------------------------
 UPDATE player SET A_ID = 4 WHERE P_ID = 1;
 UPDATE player SET A_ID = 3 WHERE P_ID = 2;
 UPDATE player SET A_ID = 2 WHERE P_ID = 3;
--- ------------------------------------------------------------------
+-- ------------------------------------------------------------------------------------------------------------------
 CREATE INDEX email_index ON Player(email);
 CREATE INDEX id_index ON Question(Q_ID);
 
