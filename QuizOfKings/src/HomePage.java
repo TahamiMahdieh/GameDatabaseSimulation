@@ -47,13 +47,12 @@ public class HomePage {
                 mm.showMainMenu();
             }
             else if (option == 9 && userBanAuthority) {
-
+                UserBanPage userBanPage = new UserBanPage(da, email);
+                userBanPage.showBanPage();
             }
-            else if (option == 9 && questionManagementAuthority) {
-
-            }
-            else if (option == 10 && questionManagementAuthority && userBanAuthority) {
-
+            else if ((option == 9 && questionManagementAuthority) || (option == 10 && questionManagementAuthority && userBanAuthority)) {
+                QuestionManagementPage qmp = new QuestionManagementPage(email, da);
+                qmp.showQuestionManagementPage();
             }
             else if (option == 1){
                 StartNewMatch newMatch = new StartNewMatch(email, da);

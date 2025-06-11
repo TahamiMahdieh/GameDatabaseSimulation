@@ -39,6 +39,113 @@ public class DatabaseAction {
         return false;
     }
 
+    public String getQuestions (boolean approval_state1) {
+        String query = "SELECT * FROM category NATURAL JOIN question WHERE approval_state = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setBoolean(1, approval_state1);
+            ResultSet resultSet = statement.executeQuery();
+
+            StringBuilder result = new StringBuilder();
+            boolean hasResults = false;
+
+            while (resultSet.next()) {
+                hasResults = true;
+                String id = resultSet.getString("Q_ID");
+                String category = resultSet.getString("Title");
+                String question = resultSet.getString("question_text");
+                String A = resultSet.getString("option_A");
+                String B = resultSet.getString("option_B");
+                String C = resultSet.getString("option_C");
+                String D = resultSet.getString("option_D");
+                String correct = resultSet.getString("correct_option");
+                String difficulty = resultSet.getString("difficulty");
+
+                String row = String.format("ID: " +  id + "| Category: " + category + "| Question: " + question + "| A: " + A + "| B: " + B + "| C: " + C + "| D: " + D + "| Correct Option: " + correct + "| Defficulty: " + difficulty);
+                result.append(row).append("\n");
+            }
+
+            if (hasResults) {
+                return result.toString();
+            } else {
+                return "No question found";
+            }
+        } catch (SQLException e) {
+            return "An error occurred while fetching questions";
+        }
+    }
+
+    public String getUsers (boolean banState) {
+        String query = "SELECT * FROM player WHERE User_Banned = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setBoolean(1, banState);
+            ResultSet resultSet = statement.executeQuery();
+
+            StringBuilder result = new StringBuilder();
+            boolean hasResults = false;
+
+            String header = String.format("%-4s %-30s %-60s %-15s", "ID", "Username", "Email", "Sign in date");
+            result.append(header).append("\n");
+            result.append("----------------------------------------------------------------------------------------------------------------------\n");
+
+
+            while (resultSet.next()) {
+                hasResults = true;
+                String id = resultSet.getString("P_ID");
+                String username = resultSet.getString("Username");
+                String player_email = resultSet.getString("email");
+                String signInDate = resultSet.getString("sign_in_date");
+
+                String row = String.format("%-4s %-30s %-60s %-15s", id, username, player_email, signInDate);
+                result.append(row).append("\n");
+            }
+
+            if (hasResults) {
+                return result.toString();
+            } else {
+                return "No user found";
+            }
+        } catch (SQLException e) {
+            return "An error occurred while fetching users";
+        }
+    }
+
+    public boolean changeApprovalState(boolean newState, int ID) {
+        String query = "UPDATE question SET approval_state = ? WHERE Q_ID = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setBoolean(1, newState);
+            stmt.setInt(2, ID);
+
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+    public boolean changeBanState(boolean newBanState, int id) {
+        String query = "UPDATE player SET user_Banned = ? WHERE P_ID = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setBoolean(1, newBanState);
+            stmt.setInt(2, id);
+
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public String seeStatistics(String email) {
         String query = "SELECT Total_Matches_Count, Won_Matches_Count, Accuracy, XP FROM statistics NATURAL JOIN player WHERE Email = ?";
         try {
@@ -84,7 +191,7 @@ public class DatabaseAction {
 
             StringBuilder result = new StringBuilder();
 
-            // هدر جدول
+            // header
             String header = String.format("%-15s %-15s %-15s %-10s", "Player1", "Player2", "Winner", "Your score");
             result.append(header).append("\n");
             result.append("-------------------------------------------------------------\n");
@@ -182,7 +289,6 @@ public class DatabaseAction {
         }
     }
 
-
     public boolean getQuestionManagementAuthorityByEmail(String email){
         String query = "SELECT question_management FROM player NATURAL JOIN authorities WHERE email = ?;";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -268,7 +374,6 @@ public class DatabaseAction {
             }
         }
     }
-
 
 
 }

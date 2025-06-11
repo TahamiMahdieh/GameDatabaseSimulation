@@ -18,6 +18,7 @@ CREATE TABLE Player (
     Username VARCHAR(50) NOT NULL,
     Email VARCHAR(100) NOT NULL UNIQUE,
     Pass VARCHAR(255) NOT NULL,
+    User_Banned BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (A_ID) REFERENCES Authorities(A_ID),
     Sign_In_Date DATE
 );
@@ -261,7 +262,8 @@ INSERT INTO player (username, email, pass, sign_in_date) VALUES
 ('Hosein', 'hosein@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
 ('Goli', 'goli@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
 ('Mina', 'mina@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17'),
-('Reza', 'reza@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2023-10-18');
+('Reza', 'reza@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2023-10-18'),
+('Akbar', 'akbar@gmail.com', '77bb75ad6dd160a47b68d3b0182cf1589c953cdeee2720359def0c6f470490bb', '2025-03-17');
 -- --------------------------------------------------------------------
 INSERT INTO question (C_ID, question_text, option_a, option_b, option_c, option_d, correct_option, Creator_ID, difficulty, approval_state) VALUES
 			(1, '234 + 123 = ?', '567', '357', '412', '337', 'B', 1, 'Easy', true),
@@ -288,7 +290,11 @@ INSERT INTO question (C_ID, question_text, option_a, option_b, option_c, option_
             (3, 'کدام یک از شاهان هخامنشی نیست؟', 'کمبوجیه', 'اردشیر دوم', 'ارشک', 'طهماسب یکم', 'D', 1, 'Hard', true),
             (1, 'نخستین زن برنده مدال فیلدز در ریاضیات؟', 'مارینا ویازوفسکا', 'مریم میرزاخانی', 'جون هو', 'عاطفه مقدسی', 'B', 2, 'Easy', true),
             (4, 'شهر معروف به نصف جهان؟', 'بندرعباس', 'شیراز', 'تبریز', 'اصفهان', 'D', 3, 'Easy', true),
-            (5, 'فیلمنامه کدام فیلم بر اساس واقعیت نوشته شده است؟', 'ارقام پنهان', 'بچه های آسمان', 'راندده', 'پس از نیمه شب', 'A', 3, 'Hard', true);
+            (5, 'فیلمنامه کدام فیلم بر اساس واقعیت نوشته شده است؟', 'ارقام پنهان', 'بچه های آسمان', 'راندده', 'پس از نیمه شب', 'A', 3, 'Hard', true),
+            (1, '12 * 12 = 4 * ?', '36', '16', '24', '18', 'A', 3, 'Easy', false),
+            (1, '1192 - 11 + 561 * 2', '2300', '2223', '2303', '2103', 'C', 1, 'Easy', false),
+            (4, 'واحد استاندارد اندازه گیری طول؟', 'اینچ', 'سانتی متر', 'متر', 'فوت', 'C', 11, 'Easy', false),
+            (4, 'هورمونی که باعث ایجاد حس لذت میشود؟ ', 'دوپامین', 'کورتیزول', 'سروتونین', 'اندوفین', 'A', 11, 'Hard', false);
 -- -----------------------------------------------------------------------------------------------------------------                      
 INSERT INTO round (Round_num, p1_answer, p2_answer, start_time, end_time) VALUES 
 			(1, 'B', 'B', '2025-06-05 14:30:45', '2025-06-05 15:35:45'),
@@ -443,6 +449,7 @@ INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
 UPDATE player SET A_ID = 4 WHERE P_ID = 1;
 UPDATE player SET A_ID = 3 WHERE P_ID = 2;
 UPDATE player SET A_ID = 2 WHERE P_ID = 3;
+UPDATE player SEt user_banned = true WHERE email = 'akbar@gmail.com';
 -- ------------------------------------------------------------------------------------------------------------------
 CREATE INDEX email_index ON Player(email);
 CREATE INDEX id_index ON Question(Q_ID);
