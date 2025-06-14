@@ -233,7 +233,7 @@ public class DatabaseAction {
 
     public ArrayList<Integer> getQuestionsByCategory (int category) {
         ArrayList<Integer> id = new ArrayList<>();
-        String query = "SELECT q_id FROM question WHERE c_id = ?";
+        String query = "SELECT q_id FROM question WHERE c_id = ? AND approval_state = true";
         try {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setInt(1, category);
@@ -509,6 +509,21 @@ public class DatabaseAction {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public boolean getUserBanStateByEmail(String email){
+        String query = "SELECT user_banned FROM player WHERE email = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean("users_ban");
+            } else {
+                throw new IllegalStateException("No user found with email: " + email);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean doesEmailExist (String email){
