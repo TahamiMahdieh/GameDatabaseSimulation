@@ -517,7 +517,7 @@ public class DatabaseAction {
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getBoolean("users_ban");
+                return resultSet.getBoolean("user_banned");
             } else {
                 throw new IllegalStateException("No user found with email: " + email);
             }
