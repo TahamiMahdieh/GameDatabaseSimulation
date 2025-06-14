@@ -183,6 +183,18 @@ DELIMITER ;
 
 
 DELIMITER $$
+CREATE FUNCTION get_category_by_id (id INT) 
+RETURNS VARCHAR (50)
+DETERMINISTIC
+BEGIN
+    DECLARE category1 VARCHAR(50);
+    SELECT Title INTO category1 FROM category WHERE c_id = id;
+    RETURN category1;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
 CREATE FUNCTION calculate_player_score_in_match (m_id1 INT, p_id1 INT) 
 RETURNS INT
 DETERMINISTIC
@@ -209,6 +221,38 @@ BEGIN
     RETURN score;
 END$$
 DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE FUNCTION answer_question(m_id1 INT, p_id1 INT, r_id1 INT, p_option CHAR) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE res INT DEFAULT 0;
+    DECLARE is_p1 BOOLEAN;
+
+    SELECT (p1_id = p_id1) INTO is_p1
+    FROM matches
+    WHERE m_id = m_id1;
+
+    IF is_p1 THEN
+        UPDATE round 
+        SET p1_answer = p_option 
+        WHERE r_id = r_id1;
+    ELSE
+        UPDATE round 
+        SET p2_answer = p_option 
+        WHERE r_id = r_id1;
+    END IF;
+
+    SET res = 1;
+    RETURN res;
+END$$
+
+DELIMITER ;
+
+
 
 
 
@@ -247,6 +291,8 @@ BEGIN
     RETURN total_count;
 END$$
 DELIMITER ;
+
+
 -- ---------------------------------------------------------
 INSERT INTO category (Title) VALUES ('math'), ('sport'), ('history'), ('common knowledge'), ('cinema');
 -- ------------------------------------------------------------------
@@ -445,6 +491,15 @@ INSERT INTO matches (p1_id, p2_id, winner_id, start_time, end_time) VALUES
 UPDATE matches SET end_time = '2025-06-27 17:30:12' WHERE m_id = 14;
 INSERT INTO r_q_m (q_id, r_id, m_id) VALUES
 			(20, 40, 14), (23, 41, 14), (1, 42, 14);
+            
+            
+            
+INSERT INTO round (Round_num, p1_answer, start_time) VALUES 
+			(1, 'B', '2025-06-27 14:30:45');
+INSERT INTO matches (p1_id, start_time) VALUES
+			(10,'2025-06-27 14:30:45');
+INSERT INTO r_q_m (q_id, r_id, m_id) VALUES 
+			(20, 43, 15);
 -- ------------------------------------------------------------------------------------------------------------------
 UPDATE player SET A_ID = 4 WHERE P_ID = 1;
 UPDATE player SET A_ID = 3 WHERE P_ID = 2;

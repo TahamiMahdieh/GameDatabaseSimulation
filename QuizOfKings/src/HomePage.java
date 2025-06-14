@@ -25,7 +25,7 @@ public class HomePage {
             System.out.println("2. Continue active matches");
             System.out.println("3. Player statics"); // done
             System.out.println("4. Player finished matches"); // done
-            System.out.println("5. Global ranking");
+            System.out.println("5. Global ranking"); // done
             System.out.println("6. Create new question"); // done
             System.out.println("7. Main menu");  //done
             System.out.println("8. Exit");  // done
@@ -55,12 +55,12 @@ public class HomePage {
                 qmp.showQuestionManagementPage();
             }
             else if (option == 1){
-                StartNewMatch newMatch = new StartNewMatch(email, da);
+                StartNewMatchPage newMatch = new StartNewMatchPage(email, da);
                 newMatch.startMatch();
             }
             else if (option == 2){
-                ActiveGame activeGame =new ActiveGame(email, da);
-                activeGame.seeActiveGames();
+                ActiveMatchesPage activeGame =new ActiveMatchesPage(email, da);
+                activeGame.seeActiveMatchesPage();
             }
             else if (option == 3){
                 System.out.println(da.seeStatistics(email));

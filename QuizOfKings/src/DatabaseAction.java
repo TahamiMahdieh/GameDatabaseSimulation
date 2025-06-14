@@ -3,6 +3,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DatabaseAction {
     private final Connection connection;
@@ -11,8 +14,28 @@ public class DatabaseAction {
         this.connection = DatabaseConnection.getConnection();
     }
 
-    public boolean startNewGame (int category, String email) {
-        return false;
+    public HashMap<Character, Integer> playerNewGame(int category, String email) {
+        int m_id = gameWithOnePlayer(category, email);
+        HashMap<Character, Integer> mqr = new HashMap<>();
+        if (m_id < 0) {
+            int mID = designNewMatch(email, category);
+            int rID = Integer.parseInt(getDataAboutMatch(mID, 1, "r_id"));
+            int qID = Integer.parseInt(getDataAboutMatch(mID, 1, "q_id"));
+            System.out.println(getQuestionsByID(qID));
+            mqr.put('m', mID);
+            mqr.put('q', qID);
+            mqr.put('r', rID);
+        }
+        else {
+            insertSecondPlayerToMatch(email, m_id);
+            int rID = Integer.parseInt(getDataAboutMatch(m_id, 1, "r_id"));
+            int qID = Integer.parseInt(getDataAboutMatch(m_id, 1, "q_id"));
+            System.out.println(getQuestionsByID(qID));
+            mqr.put('m', m_id);
+            mqr.put('q', qID);
+            mqr.put('r', rID);
+        }
+        return mqr;
     }
 
     public boolean insertNewQuestion (int category, String Question_Text, String option_A, String option_B, String option_C, String option_D, char correct_option, String email, int difficulty) {
@@ -39,7 +62,25 @@ public class DatabaseAction {
         return false;
     }
 
-    public String getQuestions (boolean approval_state1) {
+    public String getDataAboutMatch (int m_id, int r_num, String attribute) {
+        String query = "SELECT * FROM (matches NATURAL JOIN r_q_m NATURAL JOIN question) JOIN round USING (r_id) " +
+                "WHERE matches.m_id = ? AND round_num = ? ;";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);// this converts our query to sql code
+            statement.setInt(1, m_id);
+            statement.setInt(2, r_num);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString(attribute);
+            }
+        }
+        catch (SQLException e){
+            return null;
+        }
+        return null;
+    }
+
+    public String getQuestionsByApprovalState(boolean approval_state1) {
         String query = "SELECT * FROM category NATURAL JOIN question WHERE approval_state = ?";
 
         try {
@@ -75,6 +116,24 @@ public class DatabaseAction {
             return "An error occurred while fetching questions";
         }
     }
+
+    public boolean answerQuestion(String email, String option, int mid, int rid) {
+        String query = "SELECT answer_question(?, get_player_id_by_email(?), ?, ?)";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setInt(1, mid);
+            stmt.setString(2, email);
+            stmt.setInt(3, rid);
+            stmt.setString(4, option);
+            stmt.execute();
+            stmt.close();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     public String getUsers (boolean banState) {
         String query = "SELECT * FROM player WHERE User_Banned = ?";
@@ -129,6 +188,7 @@ public class DatabaseAction {
 
         return false;
     }
+
     public boolean changeBanState(boolean newBanState, int id) {
         String query = "UPDATE player SET user_Banned = ? WHERE P_ID = ?";
         try {
@@ -144,6 +204,117 @@ public class DatabaseAction {
         }
 
         return false;
+    }
+
+    public void insertSecondPlayerToMatch (String email, int m_id) {
+        String query = "UPDATE matches SET p2_id = get_player_id_by_email(?) WHERE M_ID = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, email);
+            stmt.setInt(2, m_id);
+
+            int affectedRows = stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int designNewMatch(String email, int categoryID) {
+        ArrayList<Integer> questionID = getQuestionsByCategory(categoryID);
+        // Choose a random question of that category
+        int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
+        int qId = questionID.get(randomIndex);
+        int rID = createNewRound(1);
+        int mID = createNewMatch(email);
+        createNewR_Q_M(qId, rID, mID);
+        return mID;
+    }
+
+    public ArrayList<Integer> getQuestionsByCategory (int category) {
+        ArrayList<Integer> id = new ArrayList<>();
+        String query = "SELECT q_id FROM question WHERE c_id = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, category);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int q_id = resultSet.getInt("q_id");
+                id.add(q_id);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
+
+    }
+
+    public String getQuestionsByID (int id) {
+        String query = "SELECT * FROM category NATURAL JOIN question WHERE q_id = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+
+            StringBuilder result = new StringBuilder();
+
+            while (resultSet.next()) {
+                String category = resultSet.getString("Title");
+                String question = resultSet.getString("question_text");
+                String A = resultSet.getString("option_A");
+                String B = resultSet.getString("option_B");
+                String C = resultSet.getString("option_C");
+                String D = resultSet.getString("option_D");
+                String correct = resultSet.getString("correct_option");
+                String difficulty = resultSet.getString("difficulty");
+
+                String row = String.format("Category: " + category + "| Question: " + question + "| A: " + A + "| B: " + B + "| C: " + C + "| D: " + D + "| Correct Option: " + correct + "| Defficulty: " + difficulty);
+                result.append(row).append("\n");
+            }
+            return result.toString();
+        } catch (SQLException e) {
+            return "An error occurred while fetching questions";
+        }
+
+    }
+
+    public void createNewR_Q_M (int q_id, int r_id, int m_id) {
+        String query = "INSERT INTO r_q_m (q_id, r_id, m_id) VALUES (?, ?, ?);";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, q_id);
+            statement.setInt(2, r_id);
+            statement.setInt(3, m_id);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int createNewRound (int roundNum) {
+        int id = 0;
+        String query = "INSERT INTO round (round_num, start_time) VALUES (?, CURRENT_TIMESTAMP)";
+        try {
+            id = insertAndGetId(connection, query, roundNum);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        return id;
+    }
+
+    public int createNewMatch(String email) {
+        int id = 0;
+        String query = "INSERT INTO matches (p1_id, start_time) VALUES (get_player_id_by_email(?), CURRENT_TIMESTAMP)";
+        try {
+            id = insertAndGetId(connection, query, email);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        return id;
     }
 
     public String seeStatistics(String email) {
@@ -255,7 +426,6 @@ public class DatabaseAction {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = md.digest(password.getBytes());
 
-
             //converting bytes to hex
             StringBuilder sb = new StringBuilder();
             for (byte b : hashedBytes) {
@@ -356,6 +526,25 @@ public class DatabaseAction {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public int gameWithOnePlayer (int categoryID, String email) {
+        String query = "SELECT m_id FROM (matches NATURAL JOIN r_q_m NATURAL JOIN question) JOIN round USING (r_id) " +
+                "WHERE matches.p2_id IS NULL AND C_ID = ?  AND p1_id != get_player_id_by_email(?);";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);// this converts our query to sql code
+            statement.setInt(1, categoryID);
+            statement.setString(2, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getInt("m_id");
+            }
+
+        }
+        catch (SQLException e){
+            return -1;
+        }
+        return -1;
     }
 
     private int insertAndGetId(Connection conn, String sql, Object... params) throws SQLException {

@@ -18,12 +18,12 @@ public class QuestionManagementPage {
         System.out.println("3. Home page");
         int option = s.nextInt();
         if (option == 1) {
-            System.out.println(da.getQuestions(false));
+            System.out.println(da.getQuestionsByApprovalState(false));
             editApprovalState(true);
             homePage.showHomePage();
         }
         else if (option == 2) {
-            System.out.println(da.getQuestions(true));
+            System.out.println(da.getQuestionsByApprovalState(true));
             editApprovalState(false);
             homePage.showHomePage();
         }
