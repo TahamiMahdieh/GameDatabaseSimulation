@@ -36,7 +36,7 @@ public class UserBanPage {
     }
 
     public void editBanState(boolean newBanState) {
-        System.out.println("🔵 Inter the ID of the player you want to change their ban state");
+        System.out.println("🔵 Inter ID of the player that you want to change their ban state");
         int id = s.nextInt();
         if (da.changeBanState(newBanState, id)) {
             System.out.println("Ban state updated successfully");

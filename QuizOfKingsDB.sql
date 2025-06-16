@@ -111,7 +111,55 @@ DELIMITER ;
 
 
 DELIMITER $$
+CREATE TRIGGER update_round_status BEFORE UPDATE ON round 
+FOR EACH ROW 
+BEGIN 
+    IF NEW.p2_answer IS NOT NULL AND NEW.p1_answer IS NOT NULL THEN
+        SET NEW.end_time = NOW();
+    END IF;
+END $$
+DELIMITER ; 
 
+
+DELIMITER $$
+CREATE TRIGGER update_match_status_by_round AFTER UPDATE ON round
+FOR EACH ROW
+BEGIN
+    DECLARE matchId INT;
+    DECLARE p1 INT;
+    DECLARE p2 INT;
+
+    IF NEW.round_num = 3 AND NEW.p1_answer IS NOT NULL AND NEW.p2_answer IS NOT NULL THEN
+        SELECT m_id INTO matchId FROM r_q_m WHERE r_id = NEW.r_id LIMIT 1;
+
+        IF matchId IS NOT NULL THEN
+            SELECT p1_id, p2_id INTO p1, p2 FROM matches
+            WHERE m_id = matchId LIMIT 1;
+
+		
+            UPDATE matches
+            SET match_active = FALSE, end_time = NOW()
+            WHERE m_id = matchId;
+
+		
+            UPDATE matches
+            SET winner_id = CASE 
+                WHEN calculate_player_score_in_match(matchId, p1) > calculate_player_score_in_match(matchId, p2) THEN p1
+                WHEN calculate_player_score_in_match(matchId, p1) < calculate_player_score_in_match(matchId, p2) THEN p2
+                ELSE NULL 
+            END
+            WHERE m_id = matchId;
+        END IF;
+
+    END IF;
+END $$
+
+DELIMITER ;
+
+ 
+
+
+DELIMITER $$
 CREATE TRIGGER update_statistics 
 BEFORE UPDATE ON Matches 
 FOR EACH ROW 
@@ -224,34 +272,47 @@ DELIMITER ;
 
 
 DELIMITER $$
-
 CREATE FUNCTION answer_question(m_id1 INT, p_id1 INT, r_id1 INT, p_option CHAR) 
-RETURNS INT
+RETURNS BOOLEAN
 DETERMINISTIC
 BEGIN
-    DECLARE res INT DEFAULT 0;
     DECLARE is_p1 BOOLEAN;
+    DECLARE already_answered BOOLEAN;
 
     SELECT (p1_id = p_id1) INTO is_p1
     FROM matches
     WHERE m_id = m_id1;
 
     IF is_p1 THEN
+        SELECT p1_answer IS NOT NULL INTO already_answered
+        FROM round
+        WHERE r_id = r_id1;
+
+        IF already_answered THEN
+            RETURN FALSE;
+        END IF;
+
         UPDATE round 
         SET p1_answer = p_option 
         WHERE r_id = r_id1;
+
     ELSE
+        SELECT p2_answer IS NOT NULL INTO already_answered
+        FROM round
+        WHERE r_id = r_id1;
+
+        IF already_answered THEN
+            RETURN FALSE;
+        END IF;
+
         UPDATE round 
         SET p2_answer = p_option 
         WHERE r_id = r_id1;
     END IF;
 
-    SET res = 1;
-    RETURN res;
+    RETURN TRUE;
 END$$
-
 DELIMITER ;
-
 
 
 
@@ -508,7 +569,5 @@ UPDATE player SEt user_banned = true WHERE email = 'akbar@gmail.com';
 -- ------------------------------------------------------------------------------------------------------------------
 CREATE INDEX email_index ON Player(email);
 CREATE INDEX id_index ON Question(Q_ID);
-
-
 
 

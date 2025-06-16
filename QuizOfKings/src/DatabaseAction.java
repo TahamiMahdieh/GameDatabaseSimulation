@@ -14,11 +14,37 @@ public class DatabaseAction {
         this.connection = DatabaseConnection.getConnection();
     }
 
-    public HashMap<Character, Integer> playerNewGame(int category, String email) {
-        int m_id = gameWithOnePlayer(category, email);
+    public HashMap<Character, Integer> playerNewGame(int category, String email, String opponent) {
         HashMap<Character, Integer> mqr = new HashMap<>();
-        if (m_id < 0) {
+        if (opponent == null) {
+            int m_id = gameWithOnePlayer(category, email);
+            if (m_id < 0) {
+                int mID = designNewMatch(email, category);
+                int rID = Integer.parseInt(getDataAboutMatch(mID, 1, "r_id"));
+                int qID = Integer.parseInt(getDataAboutMatch(mID, 1, "q_id"));
+                System.out.println(getQuestionsByID(qID));
+                mqr.put('m', mID);
+                mqr.put('q', qID);
+                mqr.put('r', rID);
+            } else {
+                insertSecondPlayerToMatch(email, m_id);
+                int rID = Integer.parseInt(getDataAboutMatch(m_id, 1, "r_id"));
+                int qID = Integer.parseInt(getDataAboutMatch(m_id, 1, "q_id"));
+                System.out.println(getQuestionsByID(qID));
+                mqr.put('m', m_id);
+                mqr.put('q', qID);
+                mqr.put('r', rID);
+                ArrayList<Integer> questionID = getQuestionsByCategory(category);
+                // Choose a random question of that category
+                int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
+                int qId2 = questionID.get(randomIndex);
+                int rID2 = createNewRound(2);
+                createNewR_Q_M(qId2, rID2, m_id);
+            }
+        }
+        else {
             int mID = designNewMatch(email, category);
+            insertSecondPlayerToMatch(opponent, mID);
             int rID = Integer.parseInt(getDataAboutMatch(mID, 1, "r_id"));
             int qID = Integer.parseInt(getDataAboutMatch(mID, 1, "q_id"));
             System.out.println(getQuestionsByID(qID));
@@ -26,16 +52,57 @@ public class DatabaseAction {
             mqr.put('q', qID);
             mqr.put('r', rID);
         }
-        else {
-            insertSecondPlayerToMatch(email, m_id);
-            int rID = Integer.parseInt(getDataAboutMatch(m_id, 1, "r_id"));
-            int qID = Integer.parseInt(getDataAboutMatch(m_id, 1, "q_id"));
-            System.out.println(getQuestionsByID(qID));
-            mqr.put('m', m_id);
-            mqr.put('q', qID);
-            mqr.put('r', rID);
-        }
         return mqr;
+    }
+
+    public HashMap<Character, Integer> continuingGame(int mID, String email) {
+        HashMap<Character, Integer> mqr = new HashMap<>();
+        int player_num = isPlayerOne(email, mID) ? 1 : 2;
+        int r_num, r_id;
+        String r1 = getDataAboutMatch(mID, 1, "r_id");
+        String r2 = getDataAboutMatch(mID, 2, "r_id");
+        String r3 = getDataAboutMatch(mID, 3, "r_id");
+        if (r2 == null) {
+            r_num = 1;
+            r_id = Integer.parseInt(r1);
+        }
+        else if (r3 == null) {
+            r_num = 2;
+            r_id = Integer.parseInt(r2);
+        }
+        else {
+            r_num = 3;
+            r_id = Integer.parseInt(r3);
+        }
+
+
+        if (!isPlayerTurn(r_id, player_num)) {
+            return null;
+        }
+        else {
+            if (r2 == null) {
+                ArrayList<Integer> questionID = getQuestionsByCategory(Integer.parseInt(getDataAboutMatch(mID, 1, "c_id")));
+                // Choose a random question of that category
+                int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
+                int qId = questionID.get(randomIndex);
+                int rID = createNewRound(2);
+                createNewR_Q_M(qId, rID, mID);
+            }
+            else if (r3 == null) {
+                ArrayList<Integer> questionID = getQuestionsByCategory(Integer.parseInt(getDataAboutMatch(mID, 1, "c_id")));
+                // Choose a random question of that category
+                int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
+                int qId = questionID.get(randomIndex);
+                int rID = createNewRound(3);
+                createNewR_Q_M(qId, rID, mID);
+            }
+            int qID = Integer.parseInt(getDataAboutMatch(mID, r_num, "q_id"));
+            System.out.println(getQuestionsByID(qID));
+            mqr.put('m', mID);
+            mqr.put('q', qID);
+            mqr.put('r', r_id);
+            return mqr;
+        }
     }
 
     public boolean insertNewQuestion (int category, String Question_Text, String option_A, String option_B, String option_C, String option_D, char correct_option, String email, int difficulty) {
@@ -75,7 +142,7 @@ public class DatabaseAction {
             }
         }
         catch (SQLException e){
-            return null;
+            e.printStackTrace();
         }
         return null;
     }
@@ -118,22 +185,23 @@ public class DatabaseAction {
     }
 
     public boolean answerQuestion(String email, String option, int mid, int rid) {
-        String query = "SELECT answer_question(?, get_player_id_by_email(?), ?, ?)";
+        String query = "SELECT answer_question(?, get_player_id_by_email(?), ?, ?) AS a";
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setInt(1, mid);
             stmt.setString(2, email);
             stmt.setInt(3, rid);
             stmt.setString(4, option);
-            stmt.execute();
-            stmt.close();
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getBoolean("a");
+            }
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
-
 
     public String getUsers (boolean banState) {
         String query = "SELECT * FROM player WHERE User_Banned = ?";
@@ -248,7 +316,6 @@ public class DatabaseAction {
         return id;
 
     }
-
     public String getQuestionsByID (int id) {
         String query = "SELECT * FROM category NATURAL JOIN question WHERE q_id = ?";
 
@@ -345,25 +412,27 @@ public class DatabaseAction {
         return null;
     }
 
-    public String seeFinishedMatches(String email) {
+    public String seeMatches(String email, boolean isActive) {
         String query =
                 "SELECT " +
+                        "  m_id AS ID, " +
                         "  get_player_username_by_id(matches.p1_id) AS player1, " +
                         "  get_player_username_by_id(matches.p2_id) AS player2, " +
                         "  get_player_username_by_id(matches.winner_id) AS winner, " +
                         "  calculate_player_score_in_match(matches.m_id, player.p_id) AS your_score " +
                         "FROM matches JOIN player ON (matches.p1_id = player.p_id OR matches.p2_id = player.p_id) " +
-                        "WHERE matches.Match_Active = false AND player.email = ?;";
+                        "WHERE matches.Match_Active = ? AND player.email = ?;";
 
         try {
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, email);
+            statement.setBoolean(1, isActive);
+            statement.setString(2, email);
             ResultSet resultSet = statement.executeQuery();
 
             StringBuilder result = new StringBuilder();
 
             // header
-            String header = String.format("%-15s %-15s %-15s %-10s", "Player1", "Player2", "Winner", "Your score");
+            String header = String.format("%-4s %-15s %-15s %-15s %-10s", "ID", "Player1", "Player2", "Winner", "Your score");
             result.append(header).append("\n");
             result.append("-------------------------------------------------------------\n");
 
@@ -371,23 +440,24 @@ public class DatabaseAction {
 
             while (resultSet.next()) {
                 hasResults = true;
+                int id = resultSet.getInt("ID");
                 String player1 = resultSet.getString("player1");
                 String player2 = resultSet.getString("player2");
                 String winner = resultSet.getString("winner");
                 String score = resultSet.getString("your_score");
 
-                String row = String.format("%-15s %-15s %-15s %-10s", player1, player2, winner, score);
+                String row = String.format("%-4d %-15s %-15s %-15s %-10s", id, player1, player2 == null ? "_" : player2, winner == null ? "_" : winner, score);
                 result.append(row).append("\n");
             }
 
             if (hasResults) {
                 return result.toString();
             } else {
-                return "You haven't finished a match yet";
+                return "No match was found";
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return "An error occurred while fetching finished matches.";
+            return "An error occurred while fetching matches.";
         }
     }
 
@@ -579,5 +649,40 @@ public class DatabaseAction {
         }
     }
 
+    public boolean isPlayerOne (String email, int mID) {
+        String query = "SELECT (p1_id = get_player_id_by_email(?)) AS a FROM matches WHERE m_id = ?;";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, email);
+            statement.setInt(2, mID);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getBoolean("a");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
+    public boolean isPlayerTurn (int r_id, int player_num) {
+        String query;
+        if (player_num == 1) {
+            query = "SELECT p1_answer IS NULL AS a FROM round WHERE r_id = ?;";
+        }
+        else {
+            query = "SELECT p2_answer IS NULL AS a FROM round WHERE r_id = ?;";
+        }
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, r_id);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getBoolean("a");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

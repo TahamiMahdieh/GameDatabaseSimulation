@@ -1,7 +1,9 @@
 public class RankingPage {
     private DatabaseAction da;
+    private String email;
 
-    public RankingPage(DatabaseAction da) {
+    public RankingPage(DatabaseAction da, String email) {
+        this.email = email;
         this.da = da;
     }
 
@@ -9,6 +11,8 @@ public class RankingPage {
         da.printTopPlayers("Past Week", getWeeklyQuery());
         da.printTopPlayers("Past Month", getMonthlyQuery());
         da.printTopPlayers("All Time", getOverallQuery());
+        HomePage homePage = new HomePage(da, email);
+        homePage.showHomePage();
     }
 
 

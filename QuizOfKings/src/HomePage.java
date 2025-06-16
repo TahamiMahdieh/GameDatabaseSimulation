@@ -80,7 +80,7 @@ public class HomePage {
                 }
             }
             else if (option == 4){
-                System.out.println(da.seeFinishedMatches(email));
+                System.out.println(da.seeMatches(email, false));
                 System.out.println("1. Home");
                 System.out.println("2. Exit");
                 int option1 = s.nextInt();
@@ -97,7 +97,7 @@ public class HomePage {
                 }
             }
             else if (option == 5){
-                RankingPage rankingPage = new RankingPage(da);
+                RankingPage rankingPage = new RankingPage(da, email);
                 rankingPage.showRankingPage();
             }
             else if (option == 6){
