@@ -54,10 +54,10 @@ CREATE TABLE Round (
     P1_Answer CHAR,
     P2_Answer CHAR,
     Start_Time TIMESTAMP NOT NULL,
-    End_Time TIMESTAMP, -- this can be null. if it has been more than a day since the start of the round, the match gets expired.
+    End_Time TIMESTAMP, 
     CHECK (P1_Answer IN ('A', 'B', 'C', 'D')), 
     CHECK (P2_Answer IN ('A', 'B', 'C', 'D')),
-    CHECK (Round_Num > 0 AND Round_Num < 7)
+    CHECK (Round_Num > 0 AND Round_Num < 4)
 );
 
 CREATE TABLE Matches (
