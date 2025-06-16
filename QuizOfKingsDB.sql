@@ -566,6 +566,7 @@ UPDATE player SET A_ID = 2 WHERE P_ID = 3;
 UPDATE player SEt user_banned = true WHERE email = 'akbar@gmail.com';
 -- ------------------------------------------------------------------------------------------------------------------
 CREATE INDEX email_index ON Player(email);
+CREATE INDEX pid_index ON Player(p_id);
 CREATE INDEX id_index ON Question(Q_ID);
-
+CREATE INDEX rid_index ON Round(R_ID);
 
