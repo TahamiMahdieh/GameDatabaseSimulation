@@ -20,16 +20,16 @@ public class DatabaseAction {
             int m_id = gameWithOnePlayer(category, email);
             if (m_id < 0) {
                 int mID = designNewMatch(email, category);
-                int rID = Integer.parseInt(getDataAboutMatch(mID, 1, "r_id"));
-                int qID = Integer.parseInt(getDataAboutMatch(mID, 1, "q_id"));
+                int rID = Integer.parseInt(getDataAboutMatches(mID, 1, "r_id"));
+                int qID = Integer.parseInt(getDataAboutMatches(mID, 1, "q_id"));
                 System.out.println(getQuestionsByID(qID));
                 mqr.put('m', mID);
                 mqr.put('q', qID);
                 mqr.put('r', rID);
             } else {
                 insertSecondPlayerToMatch(email, m_id);
-                int rID = Integer.parseInt(getDataAboutMatch(m_id, 1, "r_id"));
-                int qID = Integer.parseInt(getDataAboutMatch(m_id, 1, "q_id"));
+                int rID = Integer.parseInt(getDataAboutMatches(m_id, 1, "r_id"));
+                int qID = Integer.parseInt(getDataAboutMatches(m_id, 1, "q_id"));
                 System.out.println(getQuestionsByID(qID));
                 mqr.put('m', m_id);
                 mqr.put('q', qID);
@@ -45,8 +45,8 @@ public class DatabaseAction {
         else {
             int mID = designNewMatch(email, category);
             insertSecondPlayerToMatch(opponent, mID);
-            int rID = Integer.parseInt(getDataAboutMatch(mID, 1, "r_id"));
-            int qID = Integer.parseInt(getDataAboutMatch(mID, 1, "q_id"));
+            int rID = Integer.parseInt(getDataAboutMatches(mID, 1, "r_id"));
+            int qID = Integer.parseInt(getDataAboutMatches(mID, 1, "q_id"));
             System.out.println(getQuestionsByID(qID));
             mqr.put('m', mID);
             mqr.put('q', qID);
@@ -58,10 +58,18 @@ public class DatabaseAction {
     public HashMap<Character, Integer> continuingGame(int mID, String email) {
         HashMap<Character, Integer> mqr = new HashMap<>();
         int player_num = isPlayerOne(email, mID) ? 1 : 2;
+        int opponent_num;
+        if (player_num == 1) {
+            opponent_num = 2;
+        }
+        else {
+            opponent_num = 1;
+        }
+
         int r_num, r_id;
-        String r1 = getDataAboutMatch(mID, 1, "r_id");
-        String r2 = getDataAboutMatch(mID, 2, "r_id");
-        String r3 = getDataAboutMatch(mID, 3, "r_id");
+        String r1 = getDataAboutMatches(mID, 1, "r_id");
+        String r2 = getDataAboutMatches(mID, 2, "r_id");
+        String r3 = getDataAboutMatches(mID, 3, "r_id");
         if (r2 == null) {
             r_num = 1;
             r_id = Integer.parseInt(r1);
@@ -81,22 +89,26 @@ public class DatabaseAction {
         }
         else {
             if (r2 == null) {
-                ArrayList<Integer> questionID = getQuestionsByCategory(Integer.parseInt(getDataAboutMatch(mID, 1, "c_id")));
-                // Choose a random question of that category
-                int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
-                int qId = questionID.get(randomIndex);
-                int rID = createNewRound(2);
-                createNewR_Q_M(qId, rID, mID);
+                if ((opponent_num == 1 && getDataAboutMatches(mID, 1, "p1_answer") != null) || (opponent_num == 2 && getDataAboutMatches(mID, 1, "p2_answer") != null)) {
+                    ArrayList<Integer> questionID = getQuestionsByCategory(Integer.parseInt(getDataAboutMatches(mID, 1, "c_id")));
+                    // Choose a random question of that category
+                    int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
+                    int qId = questionID.get(randomIndex);
+                    int rID = createNewRound(2);
+                    createNewR_Q_M(qId, rID, mID);
+                }
             }
             else if (r3 == null) {
-                ArrayList<Integer> questionID = getQuestionsByCategory(Integer.parseInt(getDataAboutMatch(mID, 1, "c_id")));
-                // Choose a random question of that category
-                int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
-                int qId = questionID.get(randomIndex);
-                int rID = createNewRound(3);
-                createNewR_Q_M(qId, rID, mID);
+                if ((opponent_num == 1 && getDataAboutMatches(mID, 2, "p1_answer") != null) || (opponent_num == 2 && getDataAboutMatches(mID, 2, "p2_answer") != null)) {
+                    ArrayList<Integer> questionID = getQuestionsByCategory(Integer.parseInt(getDataAboutMatches(mID, 1, "c_id")));
+                    // Choose a random question of that category
+                    int randomIndex = ThreadLocalRandom.current().nextInt(questionID.size());
+                    int qId = questionID.get(randomIndex);
+                    int rID = createNewRound(3);
+                    createNewR_Q_M(qId, rID, mID);
+                }
             }
-            int qID = Integer.parseInt(getDataAboutMatch(mID, r_num, "q_id"));
+            int qID = Integer.parseInt(getDataAboutMatches(mID, r_num, "q_id"));
             System.out.println(getQuestionsByID(qID));
             mqr.put('m', mID);
             mqr.put('q', qID);
@@ -127,24 +139,6 @@ public class DatabaseAction {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public String getDataAboutMatch (int m_id, int r_num, String attribute) {
-        String query = "SELECT * FROM (matches NATURAL JOIN r_q_m NATURAL JOIN question) JOIN round USING (r_id) " +
-                "WHERE matches.m_id = ? AND round_num = ? ;";
-        try {
-            PreparedStatement statement = connection.prepareStatement(query);// this converts our query to sql code
-            statement.setInt(1, m_id);
-            statement.setInt(2, r_num);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()){
-                return resultSet.getString(attribute);
-            }
-        }
-        catch (SQLException e){
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public String getQuestionsByApprovalState(boolean approval_state1) {
@@ -182,6 +176,24 @@ public class DatabaseAction {
         } catch (SQLException e) {
             return "An error occurred while fetching questions";
         }
+    }
+
+    public String getDataAboutMatches (int m_id, int r_num, String attribute) {
+        String query = "SELECT * FROM (matches NATURAL JOIN r_q_m NATURAL JOIN question) JOIN round USING (r_id) " +
+                "WHERE matches.m_id = ? AND round_num = ? ;";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);// this converts our query to sql code
+            statement.setInt(1, m_id);
+            statement.setInt(2, r_num);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString(attribute);
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public boolean answerQuestion(String email, String option, int mid, int rid) {
@@ -333,10 +345,9 @@ public class DatabaseAction {
                 String B = resultSet.getString("option_B");
                 String C = resultSet.getString("option_C");
                 String D = resultSet.getString("option_D");
-                String correct = resultSet.getString("correct_option");
                 String difficulty = resultSet.getString("difficulty");
 
-                String row = String.format("Category: " + category + "| Question: " + question + "| A: " + A + "| B: " + B + "| C: " + C + "| D: " + D + "| Correct Option: " + correct + "| Defficulty: " + difficulty);
+                String row = String.format("Category: " + category + "| Question: " + question + "| A: " + A + "| B: " + B + "| C: " + C + "| D: " + D + "| Defficulty: " + difficulty);
                 result.append(row).append("\n");
             }
             return result.toString();

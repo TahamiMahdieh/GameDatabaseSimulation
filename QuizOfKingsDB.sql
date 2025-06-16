@@ -1,4 +1,4 @@
--- CREATE DATABASE QuizGameDB;
+CREATE DATABASE QuizGameDB;
 USE QuizGameDB;
 
 CREATE TABLE Authorities (
@@ -153,15 +153,13 @@ BEGIN
 
     END IF;
 END $$
-
 DELIMITER ;
 
  
 
 
 DELIMITER $$
-CREATE TRIGGER update_statistics 
-BEFORE UPDATE ON Matches 
+CREATE TRIGGER update_statistics AFTER UPDATE ON Matches 
 FOR EACH ROW 
 BEGIN 
   IF NEW.End_Time IS NOT NULL THEN
@@ -348,7 +346,7 @@ RETURNS INT
 DETERMINISTIC
 BEGIN
     DECLARE total_count INT;
-    SELECT COUNT(*) FROM matches WHERE (p1_id = id1 OR p2_id = id1) AND winner_id IS NOT NULL INTO total_count;
+    SELECT COUNT(*) FROM matches WHERE (p1_id = id1 OR p2_id = id1) INTO total_count;
     RETURN total_count;
 END$$
 DELIMITER ;
